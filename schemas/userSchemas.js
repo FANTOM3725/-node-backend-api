@@ -72,8 +72,8 @@ export const authSchema = z.object({
     email: z
         .string()
         .trim()
-        .min(1,'Ведите имя')
-        .email('Некоретный email'),
+        .min(1,'Введите имя')
+        .email('Некорректный email'),
     password: z.coerce
         .string()
         .trim()
