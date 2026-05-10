@@ -4,9 +4,22 @@ import path from 'path'
 import { app } from '../app.js'
 
 let adminToken
+let userToken
 let createdProductId
 
 beforeAll(async () => {
+    const userLoginResponse = await request(app)
+        .post('/api/auth/login')
+        .send({
+            email: 'john.email@email.com',
+            password: '12345678'
+        })
+
+    expect(userLoginResponse.status).toBe(200)
+    expect(userLoginResponse.body).toHaveProperty('accessToken')
+
+    userToken = userLoginResponse.body.accessToken
+
     const adminLoginResponse = await request(app)
         .post('/api/auth/login')
         .send({
