@@ -124,7 +124,7 @@ export const updateProductService = async (id, {name, price}) =>{
 
     if(name !== undefined){
         if(typeof name !== 'string' || name.trim() === ''){
-            throw new AppError(400,'Некоректное имя')
+            throw new AppError(400,'Некорректное имя')
         }
 
         data.name = name.trim()
@@ -191,7 +191,7 @@ export const deleteProductImageService = async (id) => {
     }
 
     if(!product.imageUrl){
-        throw new AppError(400, 'Изображение отсутсвует')
+        throw new AppError(400, 'Изображение отсутствует')
     }
      const image = product.imageUrl
     try{

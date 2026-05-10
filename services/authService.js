@@ -51,7 +51,7 @@ export const authService = async ({email, password}) => {
     const isPasswordValid = await bcrypt.compare(password, user.password)
 
     if(!isPasswordValid) {
-        throw new AppError(401,'Пароль введён не коректно')
+        throw new AppError(401,'Пароль введён не корректно')
     }
 
     const accessToken = jwt.sign(
