@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16
+    container_name: myapp_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 3698
+      POSTGRES_DB: myapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: myapp_backend
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      JWT_SECRET: super-super-secret
+      REFRESH_SECRET: refresh-super-secret
+      DATABASE_URL: postgresql://postgres:3698@db:5432/myapp?schema=public
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run dev"
+
+volumes:
+  postgres_data:
