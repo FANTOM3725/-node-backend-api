@@ -127,7 +127,7 @@ router.put('/:id',
  * @swagger
  * /api/users/{id}/avatar:
  *   post:
- *     summary: Добавить аватар к профилю
+ *     summary: Добавить аватар
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -138,7 +138,7 @@ router.put('/:id',
  *         schema:
  *           type: integer
  *         description: ID ресурса
- *        requestBody:
+ *      requestBody:
  *          required: true
  *          content:
  *           multipart/form-data:
