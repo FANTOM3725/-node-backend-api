@@ -10,6 +10,6 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
-    url: env("postgresql://fantom3527:u1tvXuYbWu9jWMEDCKgX3B4HAtOwBEuc@dpg-d80gbrpo3t8c73do869g-a/example_nxnc"),
+    url: env("DATABASE_URL"),
   },
 });
