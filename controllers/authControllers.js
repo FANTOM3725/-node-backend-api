@@ -17,9 +17,16 @@ export const login = async (req, res, next) => {
   try {
     const tokens = await authService(req.body)
 
+      res.cookie('refreshToken', tokens.refreshToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000
+      })
+
     res.status(200).json({
       message: 'Успешный вход',
-      ...tokens
+      accessToken: tokens.accessToken
     })
   } catch (error) {
     next(error)
@@ -28,7 +35,11 @@ export const login = async (req, res, next) => {
 
 export const refresh = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body
+    const  refreshToken = req.cookies.refreshToken
+
+      if (!refreshToken) {
+          return next(new AppError(401, 'Refresh token отсутствует'))
+      }
 
     const result = await refreshTokenService(refreshToken)
 
@@ -43,9 +54,15 @@ export const refresh = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body
+    const  refreshToken  = req.cookies.refreshToken
 
     await logoutService(refreshToken)
+
+      res.clearCookie('refreshToken', {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax'
+      })
 
     return res.status(200).json({
       message: 'Выход выполнен'
