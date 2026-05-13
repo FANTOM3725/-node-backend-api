@@ -1,5 +1,5 @@
-import {Router} from 'express'
-import { 
+import { Router } from 'express'
+import {
     getProducts,
     getPoductById,
     createProducts,
@@ -10,17 +10,18 @@ import {
     deleteProductImage,
     restoreProduct,
     getDeletedProducts
-    } from '../controllers/productsControllers.js'
-import {validate} from "../validate/validate.js";
+} from '../controllers/productsControllers.js'
+import { validate } from "../validate/validate.js"
 import {
     createProductSchema,
     patchProductSchema
-       } from "../schemas/productSchemas.js";
+} from "../schemas/productSchemas.js"
 import { authMiddleware } from '../middleWare/authMiddleware.js'
-    import { roleMiddleware } from '../middleWare/roleMiddleware.js'
-import {uploadImage} from "../middleWare/upload.js";
+import { roleMiddleware } from '../middleWare/roleMiddleware.js'
+import { uploadImage } from "../middleWare/upload.js"
 
 const router = Router()
+
 /**
  * @swagger
  * /api/products:
@@ -84,23 +85,102 @@ const router = Router()
  *         description: Ошибка валидации query-параметров
  */
 router.get('/', getProducts)
-router.get('/deleted',
+
+/**
+ * @swagger
+ * /api/products/deleted:
+ *   get:
+ *     summary: Получить список удалённых продуктов
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Список удалённых продуктов получен
+ *       401:
+ *         description: Нет токена или токен невалиден
+ *       403:
+ *         description: Нет доступа
+ *       404:
+ *         description: Удалённые продукты не найдены
+ */
+router.get(
+    '/deleted',
     authMiddleware,
     roleMiddleware('admin'),
     getDeletedProducts
 )
-router.get('/:id',
-    getPoductById)
-router.post('/',
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Получить продукт по ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID продукта
+ *     responses:
+ *       200:
+ *         description: Продукт найден
+ *       400:
+ *         description: Некорректный ID
+ *       404:
+ *         description: Продукт не найден
+ */
+router.get('/:id', getPoductById)
+
+/**
+ * @swagger
+ * /api/products:
+ *   post:
+ *     summary: Создать продукт
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - price
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: iPhone 15
+ *               price:
+ *                 type: number
+ *                 example: 999
+ *     responses:
+ *       201:
+ *         description: Продукт успешно создан
+ *       400:
+ *         description: Ошибка валидации
+ *       401:
+ *         description: Нет токена или токен невалиден
+ *       403:
+ *         description: Нет доступа
+ */
+router.post(
+    '/',
     authMiddleware,
     roleMiddleware('admin'),
     validate(createProductSchema),
-    createProducts)
+    createProducts
+)
+
 /**
  * @swagger
  * /api/products/{id}/image:
  *   post:
- *     summary: Добавить изображение к продукту
+ *     summary: Загрузить изображение продукта
  *     tags: [Products]
  *     security:
  *       - bearerAuth: []
@@ -110,50 +190,170 @@ router.post('/',
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID ресурса
+ *         description: ID продукта
  *     requestBody:
- *          required: true
- *          content:
- *           multipart/form-data:
- *             schema:
- *               type: object
- *               properties:
- *                 image:
- *                   type: string
- *                   format: binary
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
- *         description: Успешный ответ
+ *         description: Изображение успешно загружено
  *       400:
- *         description: Ошибка валидации
+ *         description: Некорректный ID или файл не загружен
  *       401:
- *         description: Нет токена
+ *         description: Нет токена или токен невалиден
  *       403:
  *         description: Нет доступа
  *       404:
- *         description: Не найдено
+ *         description: Продукт не найден
  */
-router.post('/:id/image',
+router.post(
+    '/:id/image',
     authMiddleware,
     roleMiddleware('admin'),
     uploadImage.single('image'),
     uploadProductImage
 )
-router.put('/:id',
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   put:
+ *     summary: Полностью обновить продукт
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID продукта
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - price
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: iPhone 15
+ *               price:
+ *                 type: number
+ *                 example: 999
+ *     responses:
+ *       200:
+ *         description: Продукт успешно обновлён
+ *       400:
+ *         description: Ошибка валидации или некорректный ID
+ *       401:
+ *         description: Нет токена или токен невалиден
+ *       403:
+ *         description: Нет доступа
+ *       404:
+ *         description: Продукт не найден
+ */
+router.put(
+    '/:id',
     authMiddleware,
     roleMiddleware('admin'),
     validate(createProductSchema),
-    putProduct)
-router.patch('/:id/restore',
+    putProduct
+)
+
+/**
+ * @swagger
+ * /api/products/{id}/restore:
+ *   patch:
+ *     summary: Восстановить удалённый продукт
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID продукта
+ *     responses:
+ *       200:
+ *         description: Продукт успешно восстановлен
+ *       400:
+ *         description: Некорректный ID
+ *       401:
+ *         description: Нет токена или токен невалиден
+ *       403:
+ *         description: Нет доступа
+ *       404:
+ *         description: Продукт не найден
+ */
+router.patch(
+    '/:id/restore',
     authMiddleware,
     roleMiddleware('admin'),
     restoreProduct
-    )
-router.patch('/:id',
+)
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   patch:
+ *     summary: Частично обновить продукт
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID продукта
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: iPhone 15 Pro
+ *               price:
+ *                 type: number
+ *                 example: 1099
+ *     responses:
+ *       200:
+ *         description: Продукт успешно обновлён
+ *       400:
+ *         description: Ошибка валидации или некорректный ID
+ *       401:
+ *         description: Нет токена или токен невалиден
+ *       403:
+ *         description: Нет доступа
+ *       404:
+ *         description: Продукт не найден
+ */
+router.patch(
+    '/:id',
     authMiddleware,
     roleMiddleware('admin'),
     validate(patchProductSchema),
-    patchProduct)
+    patchProduct
+)
+
 /**
  * @swagger
  * /api/products/{id}/image:
@@ -168,27 +368,58 @@ router.patch('/:id',
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID товара
+ *         description: ID продукта
  *     responses:
  *       200:
- *         description: Изображение успешно удалён
+ *         description: Изображение успешно удалено
  *       400:
- *         description: Некорректный ID или аватар отсутствует
+ *         description: Некорректный ID или изображение отсутствует
  *       401:
- *         description: Нет токена
+ *         description: Нет токена или токен невалиден
  *       403:
  *         description: Нет доступа
  *       404:
- *         description: Изображение не найден
+ *         description: Продукт не найден
  */
-router.delete('/:id/image',
+router.delete(
+    '/:id/image',
     authMiddleware,
     roleMiddleware('admin'),
     deleteProductImage
 )
-router.delete('/:id',
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   delete:
+ *     summary: Удалить продукт
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID продукта
+ *     responses:
+ *       200:
+ *         description: Продукт успешно удалён
+ *       400:
+ *         description: Некорректный ID
+ *       401:
+ *         description: Нет токена или токен невалиден
+ *       403:
+ *         description: Нет доступа
+ *       404:
+ *         description: Продукт не найден
+ */
+router.delete(
+    '/:id',
     authMiddleware,
     roleMiddleware('admin'),
-    deleteProduct)
+    deleteProduct
+)
 
 export default router
