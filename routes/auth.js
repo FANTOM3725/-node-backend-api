@@ -1,15 +1,55 @@
 import { Router } from "express";
-import {validate} from "../validate/validate.js";
-import {authSchema} from "../schemas/userSchemas.js";
-
-const router = Router()
-import {login, registration, refresh, logout} from '../controllers/authControllers.js'
-import { validateRefreshToken} from '../validate/validateAuth.js'
+import { validate } from "../validate/validate.js";
+import { authSchema, createUserSchema } from "../schemas/userSchemas.js";
+import { login, registration, refresh, logout } from '../controllers/authControllers.js'
 import { authMiddleware } from "../middleWare/authMiddleware.js";
 import { roleMiddleware } from "../middleWare/roleMiddleware.js";
-import {createUserSchema} from "../schemas/userSchemas.js";
 
-router.post('/register',  validate(createUserSchema), registration)
+const router = Router()
+
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Регистрация пользователя
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - age
+ *               - role
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John
+ *               age:
+ *                 type: integer
+ *                 example: 25
+ *               role:
+ *                 type: string
+ *                 enum: [admin, user]
+ *                 example: user
+ *               email:
+ *                 type: string
+ *                 example: john.email@email.com
+ *               password:
+ *                 type: string
+ *                 example: 12345678
+ *     responses:
+ *       201:
+ *         description: Пользователь успешно зарегистрирован
+ *       400:
+ *         description: Ошибка валидации или пользователь уже существует
+ */
+router.post('/register', validate(createUserSchema), registration)
+
 /**
  * @swagger
  * /api/auth/login:
@@ -41,41 +81,58 @@ router.post('/register',  validate(createUserSchema), registration)
  *         description: Неверный email или пароль
  */
 router.post('/login', validate(authSchema), login)
-router.post('/refresh', validateRefreshToken, refresh)
-router.post('/logout', validateRefreshToken, logout)
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Обновить access token с помощью refresh token из cookie
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Access token успешно обновлён
+ *       401:
+ *         description: Refresh token отсутствует или невалиден
+ */
+router.post('/refresh', refresh)
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Выйти из системы и удалить refresh token из cookie
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Выход выполнен
+ *       401:
+ *         description: Refresh token отсутствует или невалиден
+ */
+router.post('/logout', logout)
+
 /**
  * @swagger
  * /api/auth/profile:
  *   get:
- *     summary: Получить доступ к профилю
+ *     summary: Получить профиль текущего пользователя
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID пользователя
  *     responses:
  *       200:
- *         description: Доcтуп разрешён
- *       400:
- *         description: Некорректный ID
+ *         description: Профиль успешно получен
  *       401:
- *         description: Нет токена
+ *         description: Нет токена или токен невалиден
  *       403:
  *         description: Нет доступа
- *       404:
- *         description: Пользователь не найден
  */
 router.get('/profile', authMiddleware, roleMiddleware('user', 'admin'), (req, res) => {
-  res.status(200).json({
-    message: 'Доступ разрешён',
-    user: req.user
-  })
+    res.status(200).json({
+        message: 'Доступ разрешён',
+        user: req.user
+    })
 })
+
 /**
  * @swagger
  * /api/auth/admin-panel:
@@ -88,7 +145,7 @@ router.get('/profile', authMiddleware, roleMiddleware('user', 'admin'), (req, re
  *       200:
  *         description: Доступ разрешён
  *       401:
- *         description: Нет токена
+ *         description: Нет токена или токен невалиден
  *       403:
  *         description: Недостаточно прав
  */
@@ -98,6 +155,5 @@ router.get('/admin-panel', authMiddleware, roleMiddleware('admin'), (req, res) =
         user: req.user
     })
 })
-
 
 export default router

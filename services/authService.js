@@ -99,10 +99,13 @@ export const refreshTokenService = async (refreshToken) => {
     try{
         decoded = jwt.verify(refreshToken, REFRESH_SECRET)
     } catch(error) {
-        throw new AppError('401', 'Невалидный refresh token')
+        throw new AppError(401, 'Невалидный refresh token')
     }
-    const user = await prisma.user.findUnique({
-        where: {id: decoded.id}
+    const user = await prisma.user.findFirst({
+        where: {
+            id: decoded.id,
+            deletedAt: null
+        }
     })
     if (!user || user.refreshToken !== refreshToken) {
 
@@ -136,8 +139,8 @@ export const logoutService = async (refreshToken) => {
         where: {refreshToken}
     })
 
-    if(!user){
-        throw new AppError(404,'Пользователь не найден')
+    if (!user) {
+        throw new AppError(401, 'Невалидный refresh token')
     }
     await prisma.user.update({
         where: {id: user.id},

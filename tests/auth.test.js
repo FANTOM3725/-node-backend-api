@@ -108,3 +108,67 @@ describe('Auth API', () => {
         expect(response.status).toBe(201)
     })
 })
+
+describe('Auth refresh/logout with cookies', () => {
+    it('should refresh access token using cookie', async () => {
+        const agent = request.agent(app)
+
+        const loginResponse = await agent
+            .post('/api/auth/login')
+            .send({
+                email: 'john.email@email.com',
+                password: '12345678'
+            })
+
+
+        const refreshResponse = await agent
+            .post('/api/auth/refresh')
+
+
+        expect(refreshResponse.status).toBe(200)
+        expect(refreshResponse.body).toHaveProperty('accessToken')
+    })
+
+    it('should logout using cookie', async () => {
+        const agent = request.agent(app)
+
+        const loginResponse = await agent
+            .post('/api/auth/login')
+            .send({
+                email: 'john.email@email.com',
+                password: '12345678'
+            })
+
+
+        const logoutResponse = await agent
+            .post('/api/auth/logout')
+
+
+        expect(logoutResponse.status).toBe(200)
+        expect(logoutResponse.body.message).toBe('Выход выполнен')
+    })
+
+    it('should not refresh after logout', async () => {
+        const agent = request.agent(app)
+
+        const loginResponse = await agent
+            .post('/api/auth/login')
+            .send({
+                email: 'john.email@email.com',
+                password: '12345678'
+            })
+
+
+        const logoutResponse = await agent
+            .post('/api/auth/logout')
+
+
+        expect(logoutResponse.status).toBe(200)
+
+        const refreshResponse = await agent
+            .post('/api/auth/refresh')
+
+
+        expect(refreshResponse.status).toBe(401)
+    })
+})

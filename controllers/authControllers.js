@@ -1,4 +1,8 @@
-import { registrationService, authService, refreshTokenService, logoutService} from "../services/authService.js";
+import { registrationService,
+    authService,
+    refreshTokenService,
+    logoutService} from "../services/authService.js";
+import {AppError} from "../utilit/AppError.js";
 
 export const registration = async(req, res, next) => {
     try{
