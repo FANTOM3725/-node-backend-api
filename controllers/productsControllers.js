@@ -40,7 +40,7 @@ export const getProducts = async (req, res, next) => {
     }
 }
 
-export const getPoductById = async (req, res, next) => {
+export const getProductById = async (req, res, next) => {
     try{
          const id = parseId(req.params.id)
          if(id === null){
