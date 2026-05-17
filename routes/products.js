@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import {
     getProducts,
-    getPoductById,
+    getProductById,
     createProducts,
     putProduct,
     patchProduct,
@@ -132,7 +132,7 @@ router.get(
  *       404:
  *         description: Продукт не найден
  */
-router.get('/:id', getPoductById)
+router.get('/:id', getProductById)
 
 /**
  * @swagger
