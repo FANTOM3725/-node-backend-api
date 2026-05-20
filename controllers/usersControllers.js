@@ -38,7 +38,7 @@ export const getUserById = async (req, res, next) => {
     try{
         const id = parseId(req.params.id)
         if(id === null){
-            return next(new AppError(400,'Некорректный Id'))
+            return next(new AppError(400,'Некоретный Id'))
         }
 
         const user = await getUserByIdService(id)
@@ -68,12 +68,12 @@ export const updateFullUser = async (req, res, next) => {
     try {
         const id = parseId(req.params.id)
         if(id === null){
-            return next(new AppError(400,'Некорректный Id'))
+            return next(new AppError(400,'Некоретный Id'))
         }
         const updateUser = await updateFullUserService(id, req.body)
 
         return res.status(200).json({
-            message: 'Пользователь полностью обновлён',
+            message: 'Пользовавтель полностью обновлён',
             user: updateUser
         })
     }catch (error){
@@ -85,7 +85,7 @@ export const updateUser = async (req, res, next) => {
     try{
         const id = parseId(req.params.id)
         if(id === null){
-            return next(new AppError(400,'Некорректный Id'))
+            return next(new AppError(400,'Некоретный Id'))
         }
         const updateUser = await updateUserService(id, req.body)
 
@@ -102,7 +102,7 @@ export const deleteUser = async (req, res, next) => {
     try{
         const id = parseId(req.params.id)
         if(id === null){
-            return next(new AppError(400,'Некорректный Id'))
+            return next(new AppError(400,'Некоретный Id'))
         }
         const deleteUser = await deleteUserService(id)
 
@@ -124,7 +124,7 @@ export const restoreUser = async (req, res, next) => {
         }
             const restoreUser = await restoreUserService(id)
             return res.status(200).json({
-                message: 'Пользователь успешно восстановлен',
+                message: 'Пользователь успешно востановлен',
                 user: restoreUser
             })
 
@@ -149,7 +149,7 @@ export const uploadUserAvatar = async (req, res, next) => {
     try{
         const id = parseId(req.params.id)
         if(id === null){
-            return next(new AppError(400, "Некорректный id"))
+            return next(new AppError(400, "Некоректный id"))
         }
 
         if(!req.file){
@@ -181,13 +181,13 @@ export const deleteUserAvatar = async (req, res, next) => {
     try{
         const id = parseId(req.params.id)
         if(id === null){
-            return next(new AppError(400, 'Некорректный id'))
+            return next(new AppError(400, 'Некоректный id'))
         }
 
         const user = await deleteUserAvatarService(id)
 
         return res.status(200).json({
-            message: "Аватар успешно удалён",
+            message: "Аватар успешно удвлён",
             user: {
                 id: user.id,
                 name: user.name,
