@@ -11,6 +11,14 @@ datasource db {
   provider = "postgresql"
 }
 
+enum OrderStatus {
+  pending
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
 model User {
   id           Int      @id @default(autoincrement())
   name         String?
@@ -29,7 +37,7 @@ model User {
 
 model Order{
   id        Int @id @default(autoincrement())
-  status    String   @default("pending")
+  status    OrderStatus  @default(pending)
   userId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
