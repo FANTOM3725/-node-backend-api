@@ -3,6 +3,7 @@ import { errorHendler } from './middleWare/errorHendler.js'
 import productsRouting from './routes/products.js'
 import usersRouting from './routes/users.js'
 import authRouting from './routes/auth.js'
+import ordersRouting from "./routes/orders.js"
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './swagger.js'
 import cookieParser from "cookie-parser"
@@ -16,6 +17,7 @@ app.use(cookieParser())
 app.use('/api/products', productsRouting)
 app.use('/api/users', usersRouting)
 app.use('/api/auth', authRouting)
+app.use('/api/orders', ordersRouting)
 app.use('/uploads', express.static('uploads'))
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
